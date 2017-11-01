@@ -222,6 +222,7 @@ type SysProcAttr struct {
 	HideWindow    bool
 	CmdLine       string // used if non-empty, else the windows command line is built by escaping the arguments passed to StartProcess
 	CreationFlags uint32
+	Token         Handle
 }
 
 var zeroProcAttr ProcAttr
@@ -321,7 +322,7 @@ func StartProcess(argv0 string, argv []string, attr *ProcAttr) (pid int, handle 
 	pi := new(ProcessInformation)
 
 	flags := sys.CreationFlags | CREATE_UNICODE_ENVIRONMENT
-	err = CreateProcess(argv0p, argvp, nil, nil, true, flags, createEnvBlock(attr.Env), dirp, si, pi)
+	err = CreateProcessAsUser(sys.Token, argv0p, argvp, nil, nil, true, flags, createEnvBlock(attr.Env), dirp, si, pi)
 	if err != nil {
 		return 0, 0, err
 	}
